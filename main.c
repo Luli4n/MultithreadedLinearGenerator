@@ -32,6 +32,24 @@ void init(struct LinearGenerator* gen,int A,int c, int M,int x)
     gen->x=x;
 }
 
+void merge(int ar1[], int ar2[], int m, int n)
+{
+    for (int i = n - 1; i >= 0; i--)
+    {
+        int j, last = ar1[m - 1];
+
+        for (j = m - 2; j >= 0 && ar1[j] > ar2[i]; j--) {
+            ar1[j + 1] = ar1[j];
+        }
+
+        if (j != m - 2 || last > ar2[i])
+        {
+            ar1[j + 1] = ar2[i];
+            ar2[i] = last;
+        }
+    }
+}
+
 int nextNumber(struct LinearGenerator* gen)
 {
     int xNew = (gen->A*gen->x+gen->c) % gen->M;
@@ -110,7 +128,15 @@ int main() {
         pthread_join(sorting_threads[i],NULL);
     }
 
-    qsort(numbers, COUNT, sizeof(int), cmpfunc);
+    //    qsort(numbers, COUNT, sizeof(int), cmpfunc);
+
+    int table_elems=10;
+
+    for (int i = 0; i < COUNT/SORT_TH_NUMBER - 1;i++)
+    {
+        merge(numbers,numbers+(i+1)*10,table_elems,10);
+        table_elems+=10;
+    }
 
     for(int i=0;i<COUNT;i++)
     {
